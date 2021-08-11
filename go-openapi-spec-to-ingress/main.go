@@ -119,6 +119,29 @@ func main() {
 		minikubeIp := string(minikubeIpOutput)
 		minikubeIp = strings.TrimSpace(minikubeIp)
 
+		// Create `petstore-ing`
+		_, err = networkingv1.NewIngress(ctx, "petstore-ing", &networkingv1.IngressArgs{
+			Metadata: metav1.ObjectMetaArgs{
+				Name: pulumi.String("petstore-ing"),
+				Annotations: pulumi.ToStringMap(map[string]string{
+					"nginx.ingress.kubernetes.io/use-regex": "true",
+				}),
+			},
+			Spec: networkingv1.IngressSpecArgs{
+				Rules: networkingv1.IngressRuleArray{
+					networkingv1.IngressRuleArgs{
+						Host: pulumi.Sprintf("petstore.%s.sslip.io", minikubeIp),
+						Http: networkingv1.HTTPIngressRuleValueArgs{
+							Paths: paths,
+						},
+					},
+				},
+			},
+		})
+		if err != nil {
+			return err
+		}
+
 		return nil
 	})
 }
