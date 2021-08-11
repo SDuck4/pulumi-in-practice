@@ -48,6 +48,25 @@ func main() {
 			return err
 		}
 
+		// Create `petstore-svc`
+		_, err = corev1.NewService(ctx, "petstore-svc", &corev1.ServiceArgs{
+			Metadata: metav1.ObjectMetaArgs{
+				Name: pulumi.String("petstore-svc"),
+			},
+			Spec: corev1.ServiceSpecArgs{
+				Selector: appLabels,
+				Ports: corev1.ServicePortArray{
+					corev1.ServicePortArgs{
+						Port:       pulumi.Int(80),
+						TargetPort: pulumi.Int(8080),
+					},
+				},
+			},
+		})
+		if err != nil {
+			return err
+		}
+
 		return nil
 	})
 }
