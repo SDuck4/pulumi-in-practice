@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"os/exec"
 	"regexp"
+	"strings"
 
 	"github.com/buger/jsonparser"
 	appsv1 "github.com/pulumi/pulumi-kubernetes/sdk/v3/go/kubernetes/apps/v1"
@@ -108,6 +110,14 @@ func main() {
 			})
 			return nil
 		}, "paths")
+
+		// Get minikube IP
+		minikubeIpOutput, err := exec.Command("minikube", "ip").Output()
+		if err != nil {
+			return err
+		}
+		minikubeIp := string(minikubeIpOutput)
+		minikubeIp = strings.TrimSpace(minikubeIp)
 
 		return nil
 	})
